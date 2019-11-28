@@ -45,6 +45,9 @@ for (var i = 0; i < nbColomne; i++) {
 var score = 0;
 nbBriqueRestante = nbColomne * nbLigne;
 
+/* Mouvement Souris*/
+document.addEventListener("mousemove", mouseMoveHandler, false);
+
 function pause() {
     alert("Pause");
 }
@@ -141,6 +144,14 @@ document.onkeydown = function (event) {
         case 80: //Touche p
             pause();
             break;
+    }
+}
+
+//Fonction controle souris
+function mouseMoveHandler(e) {
+    var positionSourisX = e.clientX - canvas.offsetLeft;
+    if (positionSourisX > 0 && positionSourisX < canvas.width) {
+        posBarreX = positionSourisX - longBarre / 2;
     }
 }
 
