@@ -48,6 +48,10 @@ nbBriqueRestante = nbColomne * nbLigne;
 /* Mouvement Souris*/
 document.addEventListener("mousemove", mouseMoveHandler, false);
 
+/* Mouvement Tactil*/
+document.addEventListener("touchstart", touchHandler);
+document.addEventListener("touchmove", touchHandler);
+
 function pause() {
     alert("Pause");
 }
@@ -152,6 +156,15 @@ function mouseMoveHandler(e) {
     var positionSourisX = e.clientX - canvas.offsetLeft;
     if (positionSourisX > 0 && positionSourisX < canvas.width) {
         posBarreX = positionSourisX - longBarre / 2;
+    }
+}
+
+//Fonction controle tactile
+function touchHandler(e) {
+    if (e.touches) {
+        if (e.touches[0].clientX > 0 && e.touches[0].clientX < canvas.width) {
+            posBarreX = e.touches[0].clientX - longBarre / 2;
+        }
     }
 }
 
