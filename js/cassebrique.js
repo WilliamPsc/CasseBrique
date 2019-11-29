@@ -1,7 +1,7 @@
 /**
  * @author Timothé LANNUZEL et William PENSEC
- * @version 1.0
- * @date 27/11/2019
+ * @version 1.3
+ * @date 30/11/2019
  * @description Script servant à faire tourner le jeu du casse brique
  * 
 ** /
@@ -26,15 +26,15 @@ var posBarreX = (canvas.width / 2) - (longBarre / 1.9);
 var posBarreY = canvas.height - (hautBarre * 2);
 
 /* Initialisation briques */
-var nbLigne = 10;
-var nbColomne = 10;
+var nbLigne = 2;
+var nbColonne = 10;
 var espace_brique = 6;
 var marge_gauche_brique = 15;
 var marge_haut_brique = 10;
-var largeur_brique = (canvas.width) / (nbColomne + (espace_brique * nbColomne)/150);
-var hauteur_brique = (canvas.height) / (nbLigne * 4);
+var largeur_brique = (canvas.width) / (nbColonne + (espace_brique * nbColonne)/150);
+var hauteur_brique = 40;
 var tableauBrique = [];
-for (var i = 0; i < nbColomne; i++) {
+for (var i = 0; i < nbColonne; i++) {
     tableauBrique[i] = [];
     for (var j = 0; j < nbLigne; j++) {
         tableauBrique[i][j] = 1;
@@ -43,7 +43,7 @@ for (var i = 0; i < nbColomne; i++) {
 
 /* Vérification si on a gagné */
 var score = 0;
-nbBriqueRestante = nbColomne * nbLigne;
+nbBriqueRestante = nbColonne * nbLigne;
 
 /* Mouvement Souris*/
 document.addEventListener("mousemove", mouseMoveHandler, false);
@@ -62,7 +62,7 @@ function win() {
         document.location.reload();
         clearInterval(10); // Needed for Chrome to end game
     } else {
-        document.location.href = "/index.html";
+        document.location.href = "/cassebrique/index.html";
     }
 }
 
@@ -86,7 +86,7 @@ function drawBarre() {
 }
 
 function drawBrique(){
-    for(var i = 0; i < nbColomne; i++){
+    for(var i = 0; i < nbColonne; i++){
         for (var j = 0; j < nbLigne; j++){
             if (tableauBrique[i][j] == 1) {
                 var briqueX = (i * (largeur_brique + espace_brique)) + (marge_gauche_brique);
@@ -137,12 +137,12 @@ document.onkeydown = function (event) {
     switch (event.keyCode) {
         case 37: //Gauche
             if (posBarreX > 0) {
-                posBarreX -= 40;
+                posBarreX -= 60;
             }
             break;
         case 39: //Droite
             if (posBarreX + longBarre < canvas.width) {
-                posBarreX += 40;
+                posBarreX += 60;
             }
             break;
         case 80: //Touche p
@@ -153,23 +153,38 @@ document.onkeydown = function (event) {
 
 //Fonction controle souris
 function mouseMoveHandler(e) {
-    var positionSourisX = e.clientX - canvas.offsetLeft;
-    if (positionSourisX > 0 && positionSourisX < canvas.width) {
-        posBarreX = positionSourisX - longBarre / 2;
+    var rect = canvas.getBoundingClientRect();
+    var futurPosBarreX = (e.clientX - rect.left) * (canvas.width / rect.width) - (longBarre / 2)
+    if (futurPosBarreX < 0) {
+        posBarreX = 0;
+    } else {
+        if (futurPosBarreX > canvas.width - longBarre) {
+            posBarreX = canvas.width - longBarre;
+        } else {
+            posBarreX = futurPosBarreX;
+        }
     }
 }
 
 //Fonction controle tactile
 function touchHandler(e) {
+    var rect = canvas.getBoundingClientRect();
     if (e.touches) {
-        if (e.touches[0].clientX > 0 && e.touches[0].clientX < canvas.width) {
-            posBarreX = e.touches[0].clientX - longBarre / 2;
+        var futurPosBarreX = (e.touches[0].clientX - rect.left) * (canvas.width / rect.width) - (longBarre / 2)
+        if (futurPosBarreX < 0) {
+            posBarreX = 0;
+        } else {
+            if (futurPosBarreX > canvas.width - longBarre) {
+                posBarreX = canvas.width - longBarre;
+            } else {
+                posBarreX = futurPosBarreX;
+            }
         }
     }
 }
 
 function collision() {
-    for (var i = 0; i < nbColomne; i++) {
+    for (var i = 0; i < nbColonne; i++) {
         for (var j = 0; j < nbLigne; j++) {
             var briqueX = (i * (largeur_brique + espace_brique)) + (marge_gauche_brique);
             var briqueY = (j * (hauteur_brique + espace_brique)) + (marge_haut_brique);
