@@ -37,6 +37,26 @@
     </nav>
 
     <div class="container" style="margin-top:30px; margin-bottom: 30px;">
+        <h2>Gameplay</h2>
+        <p>
+            Le jeu se joue avec les flèches directionnelles du clavier :
+            <ul>
+                <li>Flèche gauche : barre vers la gauche</li>
+                <li>Flèche droite : barre vers la droite</li>
+            </ul>
+        </p>
+        <p>
+            Il est possible également d'y jouer avec la souris. Dans ce cas il suffit de diriger la barre avec la souris en faisant le mouvement approprié.
+        </p>
+
+        <p>
+            Une version mobile est disponible, il suffit d'appuyer sur l'écran à l'endroit voulu pour que se positionne la barre à cet endroit.
+        </p>
+        <p>
+            En appuyant sur la touche "p" du clavier (seulement sur ordinateur), il est possible de mettre en pause le jeu avant de revenir dessus.
+        </p>
+
+        <hr />
         <h2>Options</h2>
         <p>Vous pouvez choisir, ici, différentes configurations pour le jeu du casse-brique.</p>
         <div class="table-responsive-sm">
@@ -53,7 +73,66 @@
                         <td>1</td>
                         <td>Creative Mode</td>
                         <td>
-                            Vrai
+                            <form>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="switch1">
+                                    <label class="custom-control-label" for="switch1">On</label>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Nombre de Colonne</td>
+                        <td>
+                            <form>
+                                <input type="range" class="custom-range" id="nbColonne" name="colonne" step="1" min="1" max="30" value="10">
+                                <button type="submit" onClick="setColonne();" class="btn btn-primary">Submit</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Nombre de Ligne</td>
+                        <td>
+                            <form>
+                                <input type="range" class="custom-range" id="nbLigne" name="ligne" step="1" min="1" max="10" value="5">
+                                <button type="submit" onClick="setLigne();" class="btn btn-primary">Submit</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Day/Night mode</td>
+                        <td>
+                            <form>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="switch2">
+                                    <label class="custom-control-label" for="switch2">Night mode</label>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Nombre de vie</td>
+                        <td>
+                            <form>
+                                <input type="range" class="custom-range" id="nbVies" name="vie" step="1" min="-1" max="10" value="0">
+                                <button type="submit" onClick="setVies();" class="btn btn-primary">Submit</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Son</td>
+                        <td>
+                            <form>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="switch3">
+                                    <label class="custom-control-label" for="switch3">On</label>
+                                </div>
+                            </form>
                         </td>
                     </tr>
                 </tbody>
