@@ -1,8 +1,8 @@
 /**
  * @author Timothé LANNUZEL et William PENSEC
- * @version 1.3
- * @date 30/11/2019
+ * @version 1.4
  * @description Script servant à faire tourner le jeu du casse brique
+ * 01/12/2019
  * 
 ** /
 
@@ -26,12 +26,12 @@ var posBarreX = (canvas.width / 2) - (longBarre / 1.9);
 var posBarreY = canvas.height - (hautBarre * 2);
 
 /* Initialisation briques */
-var nbLigne = 2;
-var nbColonne = 10;
+var nbLigne = 1;
+var nbColonne = 2;
 var espace_brique = 6;
 var marge_gauche_brique = 15;
-var marge_haut_brique = 10;
-var largeur_brique = (canvas.width) / (nbColonne + (espace_brique * nbColonne)/150);
+var marge_haut_brique = 25;
+var largeur_brique = (canvas.width) / (nbColonne + (espace_brique * nbColonne) / 150);
 var hauteur_brique = 40;
 var tableauBrique = [];
 for (var i = 0; i < nbColonne; i++) {
@@ -40,6 +40,11 @@ for (var i = 0; i < nbColonne; i++) {
         tableauBrique[i][j] = 1;
     }
 }
+
+/* Variables chronometre */
+var start = new Date();
+var end = 0;
+var diff = 0;
 
 /* Vérification si on a gagné */
 var score = 0;
@@ -58,9 +63,31 @@ function pause() {
 
 function win() {
     score = -1;
-    if (window.confirm("================ GAGNÉ ================ \n Cliquez sur OK pour rejouer \n Cliquez sur Annuler pour revenir à l'accueil")) {
+    end = new Date();
+    diff = end - start;
+    diff = new Date(diff);
+    var sec = diff.getSeconds();
+    var min = diff.getMinutes();
+    var heure = diff.getHours() - 1;
+
+    if (sec < 10) {
+        sec = "0" + sec;
+    }
+    if (min == 0) {
+        min = "00";
+    } else if (min < 10) {
+        min = "0" + min;
+    }
+    if (heure == 0) {
+        heure = "00";
+    } else if (heure < 10) {
+        heure = "0" + heure;
+    }
+    ctx.fillText(heure + " : " + min + " : " + sec, canvas.width - 100, 20);
+    clearInterval(10); // Needed for Chrome to end game
+
+    if (window.confirm("================ GAGNÉ ================ \n Temps mis : " + heure + " : " + min + " : " + sec + "\n\n Cliquez sur OK pour rejouer \n Cliquez sur Annuler pour revenir à l'accueil")) {
         document.location.reload();
-        clearInterval(10); // Needed for Chrome to end game
     } else {
         document.location.href = "/cassebrique/index.html";
     }
@@ -200,7 +227,6 @@ function collision() {
             }
         }
     }
-
 }
 
 function collisionBarre() {
@@ -241,13 +267,38 @@ function collisionBarre() {
                             }
                             moveY = -moveY;
                         }
-
                     }
                 }
             }
-
         }
     }
+}
+
+function chronometre() {
+    end = new Date();
+    diff = end - start;
+    diff = new Date(diff);
+    var sec = diff.getSeconds();
+    var min = diff.getMinutes();
+    var heure = diff.getHours() - 1;
+
+    if (sec < 10) {
+        sec = "0" + sec;
+    }
+    if (min == 0) {
+        min = "00";
+    }else if (min < 10) {
+        min = "0" + min;
+    }
+    if (heure == 0) {
+        heure = "00";
+    } else if (heure < 10) {
+        heure = "0" + heure;
+    }
+
+    ctx.font = "20px Arial";
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillText(heure + " : " + min + " : " + sec, canvas.width - 100, 20);
 }
 
 function drawText() {
@@ -270,6 +321,7 @@ function draw() {
     collision();
 
     drawText();
+    chronometre();
 }
 setInterval(draw, 10);
 requestAnimationFrame(draw);
