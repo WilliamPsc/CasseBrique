@@ -1,8 +1,7 @@
 /**
  * @author Timothé LANNUZEL et William PENSEC
- * @version 1.4
+ * @version 1.3
  * @description Script servant à faire tourner le jeu du casse brique
- * 01/12/2019
  * 
 ** /
 
@@ -11,6 +10,14 @@ var canvas = document.getElementById("myCanvas");
 canvas.style.backgroundColor = "black"; // Fond en noir
 var nbBriqueRestante = -1;
 var ctx = canvas.getContext("2d");
+
+var beg = false;
+
+/* Création sprite audio */
+var sonActif = false;
+var musiqueFond = document.createElement("audio");
+musiqueFond.src = "";
+
 
 /* Initialisation position balle */
 var diam = 20;
@@ -24,14 +31,16 @@ var longBarre = 200;
 var hautBarre = 20;
 var posBarreX = (canvas.width / 2) - (longBarre / 1.9);
 var posBarreY = canvas.height - (hautBarre * 2);
+var modeAutomatique = false;
+
 
 /* Initialisation briques */
-var nbLigne = 1;
-var nbColonne = 2;
-var espace_brique = 6;
-var marge_gauche_brique = 15;
+var nbLigne = 5;
+var nbColonne = 10;
+var espace_brique = 10;
+var marge_gauche_brique = 7;
 var marge_haut_brique = 25;
-var largeur_brique = (canvas.width) / (nbColonne + (espace_brique * nbColonne) / 150);
+var largeur_brique = ((canvas.width) / (nbColonne)) - espace_brique;
 var hauteur_brique = 40;
 var tableauBrique = [];
 for (var i = 0; i < nbColonne; i++) {
@@ -48,6 +57,7 @@ var diff = 0;
 
 /* Vérification si on a gagné */
 var score = 0;
+var vie = -1;
 nbBriqueRestante = nbColonne * nbLigne;
 
 /* Mouvement Souris*/
@@ -56,6 +66,71 @@ document.addEventListener("mousemove", mouseMoveHandler, false);
 /* Mouvement Tactil*/
 document.addEventListener("touchstart", touchHandler);
 document.addEventListener("touchmove", touchHandler);
+
+function setColonne() {
+    localStorage.nbColonne = document.getElementById("nbColonne").value;
+    nbColonne = Number(localStorage.getItem("nbColonne"));
+    document.getElementById("labelSetColonne").innerHTML = "Valeur : " + nbColonne;
+
+    largeur_brique = ((canvas.width) / (nbColonne)) - espace_brique;
+    setLigne();
+}
+
+function setLigne() {
+    localStorage.nbLigne = document.getElementById("nbLigne").value;
+    nbLigne = Number(localStorage.getItem("nbLigne"));
+    document.getElementById("labelSetLigne").innerHTML = "Valeur : " + nbLigne;
+
+    for (var i = 0; i < nbColonne; i++) {
+        tableauBrique[i] = [];
+        for (var j = 0; j < nbLigne; j++) {
+            tableauBrique[i][j] = 1;
+        }
+    }
+    score = 0;
+    nbBriqueRestante = nbColonne * nbLigne;
+    drawBrique();
+}
+
+function setVies() {
+    localStorage.vie = document.getElementById("nbVies").value;
+    vie = Number(localStorage.getItem("vie"));
+    document.getElementById("labelSetVies").innerHTML = "Valeur : " + vie;
+}
+
+function setAuto() {
+    var valeur = "";
+    modeAutomatique = !modeAutomatique;
+    if (modeAutomatique == true) {
+        valeur = "On";
+        document.getElementById("Auto").value = true;
+    }
+    else {
+        valeur = "Off";
+        document.getElementById("Auto").value = false;
+    }
+    document.getElementById("labelModeAuto").innerHTML = valeur;
+}
+
+function setSon() {
+    var valeur = "";
+    sonActif = !sonActif;
+    if (sonActif == true) {
+        valeur = "On";
+        document.getElementById("son").value = true;
+    }
+    else {
+        valeur = "Off";
+        document.getElementById("son").value = false;
+    }
+    document.getElementById("labelSon").innerHTML = valeur;
+}
+
+function son() {
+    if (sonActif == true) {
+        
+    }
+}
 
 function pause() {
     alert("Pause");
@@ -89,7 +164,7 @@ function win() {
     if (window.confirm("================ GAGNÉ ================ \n Temps mis : " + heure + " : " + min + " : " + sec + "\n\n Cliquez sur OK pour rejouer \n Cliquez sur Annuler pour revenir à l'accueil")) {
         document.location.reload();
     } else {
-        document.location.href = "/cassebrique/index.html";
+        document.location.href = "index.html";
     }
 }
 
@@ -132,14 +207,26 @@ function moveBall() {
     posBalleX += moveX;
     posBalleY += moveY;
 
+    if (modeAutomatique == true) {
+        posBarreX = posBalleX - (longBarre / 2);
+    }
+   
     if (posBalleY + diam >= canvas.height) {
-        console.log("YOU DIE");
-        /*if (window.confirm("================ GAME OVER ================ \n Cliquez sur OK pour rejouer \n Cliquez sur Annuler pour revenir à l'accueil")) {
-            document.location.reload();
-            clearInterval(1); // Needed for Chrome to end game
-        } else {
-            document.location.href = "/index.html";
-        }*/
+        if (vie != -1) {
+            vie--;
+            if (vie < 0) {
+                console.log("YOU DIE");
+                if (window.confirm("================ GAME OVER ================ \n Cliquez sur OK pour rejouer \n Cliquez sur Annuler pour revenir à l'accueil")) {
+                    document.location.reload();
+                    clearInterval(1); // Needed for Chrome to end game
+                } else {
+                    document.location.href = "index.html";
+                }
+            }
+        }
+        else {
+            console.log("Mode infini");
+        }
     }
 
     if (posBalleX + moveX > canvas.width - diam || posBalleX + moveX < 0 + diam) {
@@ -162,42 +249,31 @@ function moveBall() {
 
 document.onkeydown = function (event) {
     switch (event.keyCode) {
-        case 37: //Gauche
+        case 37: // Gauche
             if (posBarreX > 0) {
-                posBarreX -= 60;
+                if (modeAutomatique != true) {
+                    posBarreX -= 60;
+                }
             }
             break;
-        case 39: //Droite
+        case 39: // Droite
             if (posBarreX + longBarre < canvas.width) {
-                posBarreX += 60;
+                if (modeAutomatique != true) {
+                    posBarreX += 60;
+                }
             }
             break;
-        case 80: //Touche p
-            pause();
+        case 80: // Touche p
+            beg = !beg;
             break;
     }
 }
 
 //Fonction controle souris
 function mouseMoveHandler(e) {
-    var rect = canvas.getBoundingClientRect();
-    var futurPosBarreX = (e.clientX - rect.left) * (canvas.width / rect.width) - (longBarre / 2)
-    if (futurPosBarreX < 0) {
-        posBarreX = 0;
-    } else {
-        if (futurPosBarreX > canvas.width - longBarre) {
-            posBarreX = canvas.width - longBarre;
-        } else {
-            posBarreX = futurPosBarreX;
-        }
-    }
-}
-
-//Fonction controle tactile
-function touchHandler(e) {
-    var rect = canvas.getBoundingClientRect();
-    if (e.touches) {
-        var futurPosBarreX = (e.touches[0].clientX - rect.left) * (canvas.width / rect.width) - (longBarre / 2)
+    if (modeAutomatique != true) {
+        var rect = canvas.getBoundingClientRect();
+        var futurPosBarreX = (e.clientX - rect.left) * (canvas.width / rect.width) - (longBarre / 2)
         if (futurPosBarreX < 0) {
             posBarreX = 0;
         } else {
@@ -205,6 +281,25 @@ function touchHandler(e) {
                 posBarreX = canvas.width - longBarre;
             } else {
                 posBarreX = futurPosBarreX;
+            }
+        }
+    }
+}
+
+//Fonction controle tactile
+function touchHandler(e) {
+    if (modeAutomatique != true) {
+        var rect = canvas.getBoundingClientRect();
+        if (e.touches) {
+            var futurPosBarreX = (e.touches[0].clientX - rect.left) * (canvas.width / rect.width) - (longBarre / 2)
+            if (futurPosBarreX < 0) {
+                posBarreX = 0;
+            } else {
+                if (futurPosBarreX > canvas.width - longBarre) {
+                    posBarreX = canvas.width - longBarre;
+                } else {
+                    posBarreX = futurPosBarreX;
+                }
             }
         }
     }
@@ -305,23 +400,32 @@ function drawText() {
     ctx.font = "20px Arial";
     ctx.fillStyle = "#FFFFFF";
     ctx.fillText("Score: " + score, 10, 20);
-    ctx.fillText("x :" + posBalleX + " | y : " + posBalleY, canvas.width - 150, canvas.height - 10);
-    ctx.fillText("Vitesse balle x :" + moveX + " | Vitesse balle y : " + moveY, 10, canvas.height - 10);
+    ctx.fillText("Brique restante : " + (nbBriqueRestante - score), 925, 20);
+    ctx.fillText("x : " + posBalleX + " | y : " + posBalleY, canvas.width - 150, canvas.height - 10);
+    ctx.fillText("Vitesse balle x : " + Math.abs(moveX), 10, canvas.height - 10);
+    ctx.fillText("Vies restantes : " + vie, 925, canvas.height - 10);
 }
 
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBall();
-    drawBarre();
-    drawBrique();
-    if (score == nbBriqueRestante) {
-        win();
-    }
-    moveBall();
-    collision();
+    if (beg == true) {
+        son();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawBall();
+        drawBarre();
+        drawBrique();
+        if (score == nbBriqueRestante) {
+            win();
+        }
+        moveBall();
+        collision();
 
-    drawText();
-    chronometre();
+        drawText();
+        chronometre();
+    } else {
+        ctx.font = "40px Arial";
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText("APPUYEZ SUR LA TOUCHE \"P\" POUR COMMENCER À JOUER !", canvas.width / 4 - 75, canvas.height / 2);
+    }
 }
 setInterval(draw, 10);
 requestAnimationFrame(draw);
