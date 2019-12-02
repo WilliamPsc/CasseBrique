@@ -1,6 +1,6 @@
 /**
  * @author Timothé LANNUZEL et William PENSEC
- * @version 1.3
+ * @version 1.5
  * @description Script servant à faire tourner le jeu du casse brique
  * 
 ** /
