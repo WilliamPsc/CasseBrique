@@ -1,6 +1,6 @@
 ﻿<!--
     * @author Timothé LANNUZEL et William PENSEC
-    * @version 1.5
+    * @version 1.6
     * @description Page web contenant tout le jeu du casse brique
 
 -->
@@ -9,7 +9,7 @@
 <html lang="fr-fr">
 <head>
     <title>Jeu du Casse Briques</title>
-    <link rel="icon" href="/images/icone.png" type="image/png">
+    <link rel="icon" href="images/icone.png" type="image/png">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -47,12 +47,15 @@
     <div class="container" id="index" margin-top:30px">
         <br />
         <p>
-            Ce projet a été developpé par William PENSEC et Timothé LANNUZEL dans le cadre du M1 Informatique. Il s'agit d'un projet conçu dans l'UE IHM.
+            Ce projet a été developpé par William PENSEC et Timothé LANNUZEL dans le cadre du M1 Informatique. Nous nous sommes organisés grâce à l'application Trello (voir <a href="https://trello.com/b/P136tEb2/casse-brique" target="_blank">ici</a>). Il s'agit d'un projet conçu dans l'UE IHM.
             Ce casse-brique a été réalisé à partir de JavaScript sur une base (pour le site en général) en HTML et CSS grâce à Bootstrap.
+
+            <br />
+            Le code est disponible sur Github <a href="https://github.com/WilliamPsc/CasseBrique" target="_blank">ici</a>.
         </p>
         <br />
         <p>
-            Le jeu se trouve se trouve sur la page <a href="#jeu">Jeu</a> et les options configurables pour le jeu se trouvent sur la page <a href="#option">Option</a>.
+            Le jeu se trouve se trouve ici : <a href="#jeu">Jeu</a> et les options configurables pour le jeu se trouvent ici : <a href="#option">Option</a>.
         </p>
 
     </div>
@@ -122,6 +125,18 @@
                     </tr>
                     <tr>
                         <td>4</td>
+                        <td>Musique</td>
+                        <td>
+                            <form>
+                                <div class="custom-control custom-switch">
+                                    <input onchange="setMusique();" type="checkbox" class="custom-control-input" id="musique">
+                                    <label id="labelMusique" class="custom-control-label" for="musique">Off</label>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
                         <td>Son</td>
                         <td>
                             <form>
@@ -133,7 +148,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>5</td>
+                        <td>6</td>
                         <td>Mode Automatique</td>
                         <td>
                             <form>
@@ -150,7 +165,7 @@
     </div>
 
     <div class="container" id="jeu" onload="draw();" style="margin-top:30px; margin-bottom: 30px;">
-        <canvas id="myCanvas" width="2000" height="1000" style="width :100% ; height : 95% ; border:1.5px solid #000000; align-content: center;"></canvas>
+        <canvas id="myCanvas" width="2000" height="1000" style="cursor: none; width :100% ; height : 95% ; border:1.5px solid #000000; align-content: center;"></canvas>
     </div>
 
     <div class="jumbotron text-center" style="margin-bottom:0">

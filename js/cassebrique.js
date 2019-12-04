@@ -1,6 +1,6 @@
 /**
  * @author Timothé LANNUZEL et William PENSEC
- * @version 1.5
+ * @version 1.6
  * @description Script servant à faire tourner le jeu du casse brique
  * 
 ** /
@@ -10,14 +10,27 @@ var canvas = document.getElementById("myCanvas");
 canvas.style.backgroundColor = "black"; // Fond en noir
 var nbBriqueRestante = -1;
 var ctx = canvas.getContext("2d");
-
 var beg = false;
 
 /* Création sprite audio */
+var musiqueActive = false;
 var sonActif = false;
-var musiqueFond = document.createElement("audio");
-musiqueFond.src = "";
 
+var musiqueFond = document.createElement("audio");
+musiqueFond.src = "musique/background.mp3";
+musiqueFond.volume = 0.7;
+
+var bruitBrique = document.createElement("audio");
+bruitBrique.src = "musique/bruit_brique.mp3";
+bruitBrique.volume = 0.5;
+
+var bruitRebond = document.createElement("audio");
+bruitRebond.src = "musique/rebond.mp3";
+bruitRebond.volume = 0.4;
+
+/*var bruitBonus = document.createElement("audio");
+bruitBonus.src = "musique/bonus.mp3";
+bruitBonus.volume = 0.5;*/
 
 /* Initialisation position balle */
 var diam = 20;
@@ -51,7 +64,7 @@ for (var i = 0; i < nbColonne; i++) {
 }
 
 /* Variables chronometre */
-var start = new Date();
+var start = 0;
 var end = 0;
 var diff = 0;
 
@@ -63,7 +76,7 @@ nbBriqueRestante = nbColonne * nbLigne;
 /* Mouvement Souris*/
 document.addEventListener("mousemove", mouseMoveHandler, false);
 
-/* Mouvement Tactil*/
+/* Mouvement Tactile */
 document.addEventListener("touchstart", touchHandler);
 document.addEventListener("touchmove", touchHandler);
 
@@ -89,6 +102,13 @@ function setLigne() {
     }
     score = 0;
     nbBriqueRestante = nbColonne * nbLigne;
+
+    posBalleX = canvas.width / 2;
+    posBalleY = canvas.height - 100;
+    moveX = 5;
+    moveY = -5;
+
+    drawBall();
     drawBrique();
 }
 
@@ -112,6 +132,36 @@ function setAuto() {
     document.getElementById("labelModeAuto").innerHTML = valeur;
 }
 
+function setMusique() {
+    var valeur = "";
+    musiqueActive = !musiqueActive;
+    if (musiqueActive == true) {
+        valeur = "On";
+        document.getElementById("musique").value = true;
+    }
+    else {
+        valeur = "Off";
+        document.getElementById("musique").value = false;
+    }
+    document.getElementById("labelMusique").innerHTML = valeur;
+    musique();
+}
+
+function musique() {
+    if (musiqueActive == true) {
+        console.log("Musique de fond");
+        musiqueFond.play();
+        musiqueFond.onended = (event) => {
+            console.log("Ended");
+            musique();
+        }
+    }
+    else {
+        console.log("Musique de fond NON");
+        musiqueFond.pause();
+    }
+}
+
 function setSon() {
     var valeur = "";
     sonActif = !sonActif;
@@ -124,16 +174,6 @@ function setSon() {
         document.getElementById("son").value = false;
     }
     document.getElementById("labelSon").innerHTML = valeur;
-}
-
-function son() {
-    if (sonActif == true) {
-        
-    }
-}
-
-function pause() {
-    alert("Pause");
 }
 
 function win() {
@@ -210,7 +250,6 @@ function moveBall() {
     if (modeAutomatique == true) {
         posBarreX = posBalleX - (longBarre / 2);
     }
-   
     if (posBalleY + diam >= canvas.height) {
         if (vie != -1) {
             vie--;
@@ -266,6 +305,10 @@ document.onkeydown = function (event) {
         case 80: // Touche p
             beg = !beg;
             break;
+        case 66: // Touche b
+            beg = !beg;
+            start = new Date();
+            break;
     }
 }
 
@@ -288,6 +331,10 @@ function mouseMoveHandler(e) {
 
 //Fonction controle tactile
 function touchHandler(e) {
+    if (beg != true) {
+        beg = true;
+        start = new Date()
+    }
     if (modeAutomatique != true) {
         var rect = canvas.getBoundingClientRect();
         if (e.touches) {
@@ -313,6 +360,9 @@ function collision() {
             if (posBalleY <= briqueY + hauteur_brique + marge_haut_brique && posBalleY >= briqueY) {
                 if (posBalleX <= briqueX + largeur_brique + marge_gauche_brique && posBalleX >= briqueX) {
                     if (tableauBrique[i][j] == 1) {
+                        if (sonActif == true) {
+                            bruitBrique.play();
+                        }
                         posBalleY += moveY;
                         moveY = -moveY;
                         tableauBrique[i][j] = 0;
@@ -327,10 +377,14 @@ function collision() {
 function collisionBarre() {
     if ((posBalleX + moveX) > posBarreX && (posBalleX + moveX) < (posBarreX + longBarre)) {
         if ((posBalleY + moveY + diam) > posBarreY && (posBalleY + moveY + diam) < posBarreY + hautBarre) {
+            if (sonActif == true) {
+                bruitRebond.play();
+            }
             console.log("Rebond Barre");
             //Bouger la balle selon la raquette
             if ((posBalleX + moveX) < (posBarreX + (longBarre / 5))) {
                 console.log("Rebond Barre -3");
+
                 if (moveX >= -10) {
                     moveX = moveX - 3;
                 }
@@ -408,13 +462,12 @@ function drawText() {
 
 function draw() {
     if (beg == true) {
-        son();
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawBall();
         drawBarre();
         drawBrique();
         if (score == nbBriqueRestante) {
-            win();
+            setTimeout(win(), 1000);
         }
         moveBall();
         collision();
@@ -424,7 +477,7 @@ function draw() {
     } else {
         ctx.font = "40px Arial";
         ctx.fillStyle = "#FFFFFF";
-        ctx.fillText("APPUYEZ SUR LA TOUCHE \"P\" POUR COMMENCER À JOUER !", canvas.width / 4 - 75, canvas.height / 2);
+        ctx.fillText("APPUYEZ SUR LA TOUCHE \"B\" OU TOUCHER L'ÉCRAN POUR COMMENCER À JOUER !", 150, canvas.height / 2);
     }
 }
 setInterval(draw, 10);
