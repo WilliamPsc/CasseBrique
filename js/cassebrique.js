@@ -5,6 +5,9 @@
  * 
 ** /
 
+
+/* ======================= Variables pour le fonctionnement du jeu ======================= */
+
 /* Récupération de la zone de travail */
 var canvas = document.getElementById("myCanvas");
 canvas.style.backgroundColor = "black"; // Fond en noir
@@ -13,24 +16,24 @@ var ctx = canvas.getContext("2d");
 var beg = false;
 
 /* Création sprite audio */
+/* Booleen gérant le son et musique */
 var musiqueActive = false;
 var sonActif = false;
 
+/* Déclaration de la variable de la musique de fond */
 var musiqueFond = document.createElement("audio");
 musiqueFond.src = "musique/background.mp3";
 musiqueFond.volume = 0.7;
 
+/* Déclaration de la variable du son lorsque l'on casse une brique */
 var bruitBrique = document.createElement("audio");
 bruitBrique.src = "musique/bruit_brique.mp3";
 bruitBrique.volume = 0.5;
 
+/* Déclaration de la variable du son lorsque l'on rebondit sur la barre */
 var bruitRebond = document.createElement("audio");
 bruitRebond.src = "musique/rebond.mp3";
 bruitRebond.volume = 0.4;
-
-/*var bruitBonus = document.createElement("audio");
-bruitBonus.src = "musique/bonus.mp3";
-bruitBonus.volume = 0.5;*/
 
 /* Initialisation position balle */
 var diam = 20;
@@ -46,8 +49,7 @@ var posBarreX = (canvas.width / 2) - (longBarre / 1.9);
 var posBarreY = canvas.height - (hautBarre * 2);
 var modeAutomatique = false;
 
-
-/* Initialisation briques */
+/* Initialisation des briques et du tableau de brique */
 var nbLigne = 5;
 var nbColonne = 10;
 var espace_brique = 10;
@@ -68,7 +70,7 @@ var start = 0;
 var end = 0;
 var diff = 0;
 
-/* Initialisation bonus */
+/* Initialisation des bonus */
 var longBonus = largeur_brique / 1.5;
 var hautBonus = hauteur_brique / 1.5;
 var posBonusX = -500;
@@ -76,17 +78,9 @@ var posBonusY = -500;
 var nbBonus = 0;
 var typeBonus = 0;
 var bonusTime = false;
-var startBonus = new Date();
-var endBonus = 0;
-var diffBonus = 0;
-
-/* Variables chronometre */
-var start = new Date();
-var end = 0;
-var diff = 0;
 
 /* Variable timer bonus */
-var startBonus = new Date();
+var startBonus = 0;
 var endBonus = 0;
 var diffBonus = 0;
 
@@ -102,6 +96,9 @@ document.addEventListener("mousemove", mouseMoveHandler, false);
 document.addEventListener("touchstart", touchHandler);
 document.addEventListener("touchmove", touchHandler);
 
+
+/* ======================= Fonctions du jeu ======================= */
+/* Fonction d'initialisation du nombre de colonnes */
 function setColonne() {
     localStorage.nbColonne = document.getElementById("nbColonne").value;
     nbColonne = Number(localStorage.getItem("nbColonne"));
@@ -111,6 +108,7 @@ function setColonne() {
     setLigne();
 }
 
+/* Fonction d'initialisation du nombre de lignes */
 function setLigne() {
     localStorage.nbLigne = document.getElementById("nbLigne").value;
     nbLigne = Number(localStorage.getItem("nbLigne"));
@@ -119,7 +117,7 @@ function setLigne() {
     for (var i = 0; i < nbColonne; i++) {
         tableauBrique[i] = [];
         for (var j = 0; j < nbLigne; j++) {
-            tableauBrique[i][j] = 1;
+            tableauBrique[i][j] = Math.floor(Math.random() * 6 + 1);
         }
     }
     score = 0;
@@ -134,12 +132,14 @@ function setLigne() {
     drawBrique();
 }
 
+/* Fonction d'initialisation du nombre de vies */
 function setVies() {
     localStorage.vie = document.getElementById("nbVies").value;
     vie = Number(localStorage.getItem("vie"));
     document.getElementById("labelSetVies").innerHTML = "Valeur : " + vie;
 }
 
+/* Fonction de jeu automatique */
 function setAuto() {
     var valeur = "";
     modeAutomatique = !modeAutomatique;
@@ -154,6 +154,7 @@ function setAuto() {
     document.getElementById("labelModeAuto").innerHTML = valeur;
 }
 
+/* Fonctions de lancement de la musique de fond */
 function setMusique() {
     var valeur = "";
     musiqueActive = !musiqueActive;
@@ -171,19 +172,17 @@ function setMusique() {
 
 function musique() {
     if (musiqueActive == true) {
-        console.log("Musique de fond");
         musiqueFond.play();
         musiqueFond.onended = (event) => {
-            console.log("Ended");
             musique();
         }
     }
     else {
-        console.log("Musique de fond NON");
         musiqueFond.pause();
     }
 }
 
+/* Fonction de lancement des sons de rebond de balle et du cassage des briques */
 function setSon() {
     var valeur = "";
     sonActif = !sonActif;
@@ -198,38 +197,7 @@ function setSon() {
     document.getElementById("labelSon").innerHTML = valeur;
 }
 
-function win() {
-    score = -1;
-    end = new Date();
-    diff = end - start;
-    diff = new Date(diff);
-    var sec = diff.getSeconds();
-    var min = diff.getMinutes();
-    var heure = diff.getHours() - 1;
-
-    if (sec < 10) {
-        sec = "0" + sec;
-    }
-    if (min == 0) {
-        min = "00";
-    } else if (min < 10) {
-        min = "0" + min;
-    }
-    if (heure == 0) {
-        heure = "00";
-    } else if (heure < 10) {
-        heure = "0" + heure;
-    }
-    ctx.fillText(heure + " : " + min + " : " + sec, canvas.width - 100, 20);
-    clearInterval(10); // Needed for Chrome to end game
-
-    if (window.confirm("================ GAGNÉ ================ \n Temps mis : " + heure + " : " + min + " : " + sec + "\n\n Cliquez sur OK pour rejouer \n Cliquez sur Annuler pour revenir à l'accueil")) {
-        document.location.reload();
-    } else {
-        document.location.href = "index.html";
-    }
-}
-
+/* Fonction de dessin de la balle */
 function drawBall() {
     ctx.beginPath();
     ctx.arc(posBalleX, posBalleY, diam, 0, Math.PI * 2);
@@ -240,6 +208,7 @@ function drawBall() {
     ctx.closePath();
 }
 
+/* Fonction de dessin de la barre */
 function drawBarre() {
     ctx.beginPath();
     ctx.fillStyle = "#0000FF";
@@ -249,6 +218,7 @@ function drawBarre() {
     ctx.fill();
 }
 
+/* Fonction de dessin des briques */
 function drawBrique() {
     for (var i = 0; i < nbColonne; i++) {
         for (var j = 0; j < nbLigne; j++) {
@@ -270,6 +240,102 @@ function drawBrique() {
     }
 }
 
+/* Fonction servant à calculer et afficher le temps passé sur la partie */
+function chronometre() {
+    end = new Date();
+    diff = end - start;
+    diff = new Date(diff);
+    var sec = diff.getSeconds();
+    var min = diff.getMinutes();
+    var heure = diff.getHours() - 1;
+
+    if (sec < 10) {
+        sec = "0" + sec;
+    }
+    if (min == 0) {
+        min = "00";
+    } else if (min < 10) {
+        min = "0" + min;
+    }
+    if (heure == 0) {
+        heure = "00";
+    } else if (heure < 10) {
+        heure = "0" + heure;
+    }
+
+    ctx.font = "20px Arial";
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillText(heure + " : " + min + " : " + sec, canvas.width - 100, 20);
+}
+
+/* Fonction servant à détecter l'appui sur 4 touches différentes : */
+document.onkeydown = function (event) {
+    switch (event.keyCode) {
+        case 37: // Flèche Gauche
+            if (posBarreX > 0) {
+                if (modeAutomatique != true) {
+                    posBarreX -= 60;
+                }
+            }
+            break;
+        case 39: // Flèche Droite
+            if (posBarreX + longBarre < canvas.width) {
+                if (modeAutomatique != true) {
+                    posBarreX += 60;
+                }
+            }
+            break;
+        case 80: // Touche p
+            beg = !beg;
+            break;
+        case 66: // Touche b
+            beg = !beg;
+            start = new Date();
+            break;
+    }
+}
+
+/* Fonction servant à faire bouger la barre grâce à la souris */
+function mouseMoveHandler(e) {
+    if (modeAutomatique != true) {
+        var rect = canvas.getBoundingClientRect();
+        var futurPosBarreX = (e.clientX - rect.left) * (canvas.width / rect.width) - (longBarre / 2)
+        if (futurPosBarreX < 0) {
+            posBarreX = 0;
+        } else {
+            if (futurPosBarreX > canvas.width - longBarre) {
+                posBarreX = canvas.width - longBarre;
+            } else {
+                posBarreX = futurPosBarreX;
+            }
+        }
+    }
+}
+
+/* Fonction servant à faire bouger la barre en tactile sur téléphone ou tablette */
+function touchHandler(e) {
+    if (beg != true) {
+        beg = true;
+        start = new Date()
+    }
+    if (modeAutomatique != true) {
+        var rect = canvas.getBoundingClientRect();
+        if (e.touches) {
+            var futurPosBarreX = (e.touches[0].clientX - rect.left) * (canvas.width / rect.width) - (longBarre / 2)
+            if (futurPosBarreX < 0) {
+                posBarreX = 0;
+            } else {
+                if (futurPosBarreX > canvas.width - longBarre) {
+                    posBarreX = canvas.width - longBarre;
+                } else {
+                    posBarreX = futurPosBarreX;
+                }
+            }
+        }
+    }
+}
+
+/* Fonction servant à faire bouger la balle dans une direction */
 function moveBall() {
     posBalleX += moveX;
     posBalleY += moveY;
@@ -313,82 +379,12 @@ function moveBall() {
     collisionBarre();
 }
 
-document.onkeydown = function (event) {
-    switch (event.keyCode) {
-        case 37: // Gauche
-            if (posBarreX > 0) {
-                if (modeAutomatique != true) {
-                    posBarreX -= 60;
-                }
-            }
-            break;
-        case 39: // Droite
-            if (posBarreX + longBarre < canvas.width) {
-                if (modeAutomatique != true) {
-                    posBarreX += 60;
-                }
-            }
-            break;
-        case 80: // Touche p
-            beg = !beg;
-            break;
-        case 66: // Touche b
-            beg = !beg;
-            start = new Date();
-            break;
-    }
-}
-
-//Fonction controle souris
-function mouseMoveHandler(e) {
-    if (modeAutomatique != true) {
-        var rect = canvas.getBoundingClientRect();
-        var futurPosBarreX = (e.clientX - rect.left) * (canvas.width / rect.width) - (longBarre / 2)
-        if (futurPosBarreX < 0) {
-            posBarreX = 0;
-        } else {
-            if (futurPosBarreX > canvas.width - longBarre) {
-                posBarreX = canvas.width - longBarre;
-            } else {
-                posBarreX = futurPosBarreX;
-            }
-        }
-    }
-}
-
-//Fonction controle tactile
-function touchHandler(e) {
-    if (beg != true) {
-        beg = true;
-        start = new Date()
-    }
-    if (modeAutomatique != true) {
-        var rect = canvas.getBoundingClientRect();
-        if (e.touches) {
-            var futurPosBarreX = (e.touches[0].clientX - rect.left) * (canvas.width / rect.width) - (longBarre / 2)
-            if (futurPosBarreX < 0) {
-                posBarreX = 0;
-            } else {
-                if (futurPosBarreX > canvas.width - longBarre) {
-                    posBarreX = canvas.width - longBarre;
-                } else {
-                    posBarreX = futurPosBarreX;
-                }
-            }
-        }
-    }
-}
-
+/* Fonction servant à détecter les collisions avec les murs ou les briques */
 function collision() {
     for (var i = 0; i < nbColonne; i++) {
         for (var j = 0; j < nbLigne; j++) {
             var briqueX = (i * (largeur_brique + espace_brique)) + (marge_gauche_brique);
             var briqueY = (j * (hauteur_brique + espace_brique)) + (marge_haut_brique);
-            if (changerDirection == true) {
-                 if (sonActif == true) {
-                            bruitBrique.play();
-                        }
-                    if (changerDirectionY == true) {
             var changerDirection = false;
             var changerDirectionY = false;
             if ((((posBalleY >= briqueY) && (posBalleY <= (briqueY + hauteur_brique)))
@@ -408,9 +404,6 @@ function collision() {
                 }
             }
             if (changerDirection == true) {
-                 if (sonActif == true) {
-                            bruitBrique.play();
-                        }
                 if (tableauBrique[i][j] >= 1) {
                     if (changerDirectionY == true) {
                         posBalleY += moveY;
@@ -424,9 +417,12 @@ function collision() {
                         posBonusX = briqueX + largeur_brique / 4;
                         posBonusY = briqueY + hauteur_brique / 2;
                         nbBonus = nbBonus + 1;
-                        drawBonus();
+                        drawBonus(); // Affichage d'un bonus à l'écran
                     }
-                    tableauBrique[i][j] = 0;
+                    if (sonActif == true) {
+                        bruitBrique.play();
+                    }
+                    tableauBrique[i][j] = 0; // Suppression d'une brique
                     score++;
                     changerDirection = false;
                 }
@@ -435,17 +431,16 @@ function collision() {
     }
 }
 
+/* Fonction servant à détecter les collisions avec la barre de rebond */
 function collisionBarre() {
     if ((posBalleX + moveX) > posBarreX && (posBalleX + moveX) < (posBarreX + longBarre)) {
         if ((posBalleY + moveY + diam) > posBarreY && (posBalleY + moveY + diam) < posBarreY + hautBarre) {
             if (sonActif == true) {
                 bruitRebond.play();
             }
-            console.log("Rebond Barre");
             //Bouger la balle selon la raquette
             if ((posBalleX + moveX) < (posBarreX + (longBarre / 5))) {
                 console.log("Rebond Barre -3");
-
                 if (moveX >= -10) {
                     moveX = moveX - 3;
                 }
@@ -484,52 +479,17 @@ function collisionBarre() {
     }
 }
 
+/* Fonction servant à détecter les collisions avec les bonus qui tombent */
 function collisionBonus() {
     if (posBonusX >= posBarreX && posBonusX <= (posBarreX + longBarre) || (posBonusX + longBonus) >= posBarreX && (posBonusX + longBonus) <= (posBarreX + longBarre)) {
         if (posBonusY + hautBonus > posBarreY && posBonusY < posBarreY + hautBarre) {
-            effacerBonus();
+            //effacerBonus();
             bonus();
         }
     }
 }
 
-function chronometre() {
-    end = new Date();
-    diff = end - start;
-    diff = new Date(diff);
-    var sec = diff.getSeconds();
-    var min = diff.getMinutes();
-    var heure = diff.getHours() - 1;
-
-    if (sec < 10) {
-        sec = "0" + sec;
-    }
-    if (min == 0) {
-        min = "00";
-    }else if (min < 10) {
-        min = "0" + min;
-    }
-    if (heure == 0) {
-        heure = "00";
-    } else if (heure < 10) {
-        heure = "0" + heure;
-    }
-
-    ctx.font = "20px Arial";
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillText(heure + " : " + min + " : " + sec, canvas.width - 100, 20);
-}
-
-function drawText() {
-    ctx.font = "20px Arial";
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillText("Score: " + score, 10, 20);
-    ctx.fillText("Brique restante : " + (nbBriqueRestante - score), 925, 20);
-    ctx.fillText("x : " + posBalleX + " | y : " + posBalleY, canvas.width - 150, canvas.height - 10);
-    ctx.fillText("Vitesse balle x : " + Math.abs(moveX), 10, canvas.height - 10);
-    ctx.fillText("Vies restantes : " + vie, 925, canvas.height - 10);
-}
-
+/* Fonction servant à afficher à l'écran un bonus tombant */
 function drawBonus() {
     ctx.beginPath();
     switch (typeBonus) {
@@ -560,12 +520,14 @@ function drawBonus() {
     }
 }
 
+/* Fonction servant à supprimer le bonus précédent */
 function effacerBonus() {
     posBonusX = -500;
     posBonusY = -500;
     nbBonus = nbBonus - 1;
 }
 
+/* Fonction servant à mettre en oeuvre le bonus durant la partie (activation) */
 function bonus() {
     if (bonusTime) {
         endBonus = new Date();
@@ -601,16 +563,55 @@ function bonus() {
             if (bonusTime == false) {
                 bonusTime = true;
             }
-            if (sec > 5) {
-                bonusTime = false;
-            }
-            break
-        default:
-
+            break;
     }
 }
 
+/* Fonction gagnante */
+function win() {
+    score = -1;
+    end = new Date();
+    diff = end - start;
+    diff = new Date(diff);
+    var sec = diff.getSeconds();
+    var min = diff.getMinutes();
+    var heure = diff.getHours() - 1;
 
+    if (sec < 10) {
+        sec = "0" + sec;
+    }
+    if (min == 0) {
+        min = "00"; // Affichage des minutes en 2 chiffres quand < à 10
+    } else if (min < 10) {
+        min = "0" + min;
+    }
+    if (heure == 0) {
+        heure = "00"; // Affichage des secondes en 2 chiffres quand < à 10
+    } else if (heure < 10) {
+        heure = "0" + heure;
+    }
+    ctx.fillText(heure + " : " + min + " : " + sec, canvas.width - 100, 20);
+    clearInterval(10); // Needed for Chrome to end game
+
+    if (window.confirm("================ GAGNÉ ================ \n Temps mis : " + heure + " : " + min + " : " + sec + "\n\n Cliquez sur OK pour rejouer \n Cliquez sur Annuler pour revenir à l'accueil")) {
+        document.location.reload();
+    } else {
+        document.location.href = "index.html";
+    }
+}
+
+/* Fonction servant à afficher le score, le nombre de brique restante, la position de la balle en temps réel, le nombre de vies restantes */
+function drawText() {
+    ctx.font = "20px Arial";
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillText("Score: " + score, 10, 20);
+    ctx.fillText("Brique restante : " + (nbBriqueRestante - score), 925, 20);
+    ctx.fillText("x : " + posBalleX + " | y : " + posBalleY, canvas.width - 150, canvas.height - 10);
+    ctx.fillText("Vitesse balle x : " + Math.abs(moveX), 10, canvas.height - 10);
+    ctx.fillText("Vies restantes : " + vie, 925, canvas.height - 10);
+}
+
+/* Fonction principale servant à lancer les fonctions précédentes et gérer le démarrage du jeu */
 function draw() {
     if (beg == true) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -618,7 +619,7 @@ function draw() {
         drawBarre();
         drawBrique();
         if (score == nbBriqueRestante) {
-            setTimeout(win(), 1000);
+            setTimeout(win(), 10000);
         }
         moveBall();
         collision();
@@ -640,5 +641,7 @@ function draw() {
         ctx.fillText("APPUYEZ SUR LA TOUCHE \"B\" OU TOUCHER L'ÉCRAN POUR COMMENCER À JOUER !", 150, canvas.height / 2);
     }
 }
+
+/* Sert à relancer indéfiniment la fonction draw() */
 setInterval(draw, 10);
 requestAnimationFrame(draw);
