@@ -1,6 +1,6 @@
 /**
  * @author Timothé LANNUZEL et William PENSEC
- * @version 1.9.2
+ * @version 1.9.3
  * @description Script servant à faire tourner le jeu du casse brique
  * 
 ** /
@@ -292,12 +292,16 @@ document.onkeydown = function (event) {
             }
             break;
         case 80: // Touche p
-            beg = !beg;
+            if (beg_val != 0) {
+                beg = !beg;
+            }
             break;
         case 66: // Touche b
-            beg = !beg;
-            beg_val++;
-            start = new Date();
+            if (beg_val == 0) {
+                beg = !beg;
+                beg_val++;
+                start = new Date();
+            }
             break;
     }
 }
