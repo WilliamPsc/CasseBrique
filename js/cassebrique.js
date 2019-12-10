@@ -1,6 +1,6 @@
 /**
  * @author Timothé LANNUZEL et William PENSEC
- * @version 1.9
+ * @version 1.9.2
  * @description Script servant à faire tourner le jeu du casse brique
  * 
 ** /
@@ -14,6 +14,7 @@ canvas.style.backgroundColor = "black"; // Fond en noir
 var nbBriqueRestante = -1;
 var ctx = canvas.getContext("2d");
 var beg = false;
+var beg_val = 0;
 
 /* Création sprite audio */
 /* Booleen gérant le son et musique */
@@ -235,7 +236,7 @@ function drawBrique() {
                 if (tableauBrique[i][j] == 1) {
                     ctx.fillStyle = "#FF0000";
                 } else {
-                    ctx.fillStyle = "#FFFF00";
+                    ctx.fillStyle = "#FF0000";
                 }
 
                 ctx.fill();
@@ -295,6 +296,7 @@ document.onkeydown = function (event) {
             break;
         case 66: // Touche b
             beg = !beg;
+            beg_val++;
             start = new Date();
             break;
     }
@@ -352,7 +354,7 @@ function moveBall() {
         if (vie != -1) {
             vie--;
             if (vie < 0) {
-                console.log("YOU DIE");
+                //console.log("YOU DIE");
                 if (window.confirm("================ GAME OVER ================ \n Cliquez sur OK pour rejouer \n Cliquez sur Annuler pour revenir à l'accueil")) {
                     document.location.reload();
                     clearInterval(1); // Needed for Chrome to end game
@@ -362,22 +364,22 @@ function moveBall() {
             }
         }
         else {
-            console.log("Mode infini");
+            //console.log("Mode infini");
         }
     }
 
     if (posBalleX + moveX > canvas.width - diam || posBalleX + moveX < 0 + diam) {
-        console.log("Rebond Gauche ou Droit");
+        //console.log("Rebond Gauche ou Droit");
         moveX = -moveX;
     }
 
     if (posBalleY + moveY > canvas.height - diam || posBalleY + moveY < 0 + diam) {
-        console.log("Rebond Bord haut");
+        //console.log("Rebond Bord haut");
         moveY = -moveY;
     }
     else if (posBalleY + moveY > canvas.height - diam) {
         if (posBalleX + diam > posBarreX && posBalleX + diam < posBarreX + longBarre) {
-            console.log("Rebond Bord 2");
+            //console.log("Rebond Bord 2");
             moveY = -moveY;
         }
     }
@@ -449,33 +451,33 @@ function collisionBarre() {
             }
             //Bouger la balle selon la raquette
             if ((posBalleX + moveX) < (posBarreX + (longBarre / 5))) {
-                console.log("Rebond Barre -3");
+                //console.log("Rebond Barre -3");
                 if (moveX >= -10) {
                     moveX = moveX - 3;
                 }
                 moveY = -moveY;
             } else {
                 if ((posBalleX + moveX) < (posBarreX + (longBarre / 5) + (longBarre / 5))) {
-                    console.log("Rebond Barre -1");
+                    //console.log("Rebond Barre -1");
                     if (moveX >= -10) {
                         moveX = moveX - 1;
                     }
                     moveY = -moveY;
                 } else {
                     if ((posBalleX + moveX) < (posBarreX + (longBarre / 5) + (longBarre / 5) + (longBarre / 5))) {
-                        console.log("Rebond Barre 0");
+                        //console.log("Rebond Barre 0");
                         moveX = moveX;
                         moveY = -moveY;
                     } else {
                         if ((posBalleX + moveX) < (posBarreX + (longBarre / 5) + (longBarre / 5) + (longBarre / 5) + (longBarre / 5))) {
-                            console.log("Rebond Barre +1");
+                            //console.log("Rebond Barre +1");
                             if (moveX <= 10) {
                                 moveX = moveX + 1;
                             }
                             moveX = moveX + 1;
                             moveY = -moveY;
                         } else {
-                            console.log("Rebond Barre +3");
+                            //console.log("Rebond Barre +3");
                             if (moveX <= 10) {
                                 moveX = moveX + 3;
                             }
@@ -590,22 +592,22 @@ function bonusActiver() {
         if (secBonus >= 5) {
             switch (tableauBonusActiver[i]) {
                 case 1: //Balle Plus grande
-                    diam = diam / 1.5;
+                    diam = 20;
                     bonusTime = false;
                     break;
                 case 2: //Paddle plus grand
-                    longBarre = longBarre / 1.5;
+                    longBarre = 200;
                     bonusTime = false;
                     break;
-                case 5: //Paddle plus petit
-                    longBarre = longBarre * 1.5;
+                case 3: //Paddle plus petit
+                    longBarre = 200;
                     bonusTime = false;
                     break;
                 case 4: // Balle Plus petite
-                    diam = diam * 1.5;
+                    diam = 20;
                     bonusTime = false;
                     break;
-                case 3:
+                case 5:
                     rainbowTime = false;
                     break;
             }
@@ -711,13 +713,17 @@ function draw() {
         if (rainbowTime) {
             rainbowBall();
         }
-        
+
         drawText();
         chronometre();
+    } else if (beg_val == 0) {
+        ctx.font = "40px Arial";
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText("APPUYEZ SUR LA TOUCHE \"B\" POUR COMMENCER À JOUER !", 450, canvas.height / 2);
     } else {
         ctx.font = "40px Arial";
         ctx.fillStyle = "#FFFFFF";
-        ctx.fillText("APPUYEZ SUR LA TOUCHE \"B\" OU TOUCHER L'ÉCRAN POUR COMMENCER À JOUER !", 150, canvas.height / 2);
+        ctx.fillText("APPUYEZ SUR LA TOUCHE \"P\" POUR CONTINUER À JOUER !", 450, canvas.height / 2);
     }
 }
 
